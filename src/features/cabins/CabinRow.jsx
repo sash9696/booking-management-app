@@ -1,6 +1,9 @@
 import styled from "styled-components";
 import {formatCurrency} from '../../utils/helpers'
 import PropTypes from 'prop-types';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteCabin } from "../../services/apiCabins";
+import {toast} from 'react-hot-toast';
 
 const TableRow = styled.div`
   display: grid;
@@ -44,7 +47,23 @@ const Discount = styled.div`
 
 function CabinRow({cabin}) {
 
-  const {name, maxCapacity, regularPrice, discount, image } = cabin;
+  const {id:cabinId, name, maxCapacity, regularPrice, discount, image } = cabin;
+ 
+ //hook to return the instance of query client that I put in main.jsx
+ const queryClient = useQueryClient();
+ 
+  //to mutate remote state
+
+ const {isLoading:isDeleting, mutate} =  useMutation({
+    mutationFn:deleteCabin,
+    onSuccess:() => {
+      toast.success('Cabin successfully deleted');
+      queryClient.invalidateQueries({
+        queryKey:['cabins'],
+      })
+    }, //what to do as soon asthe mutuation is successfull so we want to refetch the data
+    onError:(error) => toast.error(error.message)
+  });
   return (
 
     <TableRow role="row">
@@ -53,7 +72,7 @@ function CabinRow({cabin}) {
       <div>Fits up to {maxCapacity} guests </div>
       <Price>{formatCurrency(regularPrice)} </Price>
       <Discount>{formatCurrency(discount)} </Discount>
-      <button>Delete</button>
+      <button disabled={isDeleting} onClick={() => mutate(cabinId)} >Delete</button>
 
     </TableRow>
   )
@@ -61,6 +80,7 @@ function CabinRow({cabin}) {
 
 CabinRow.propTypes = {
   cabin: PropTypes.shape({
+    id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
     maxCapacity: PropTypes.number.isRequired,
     regularPrice: PropTypes.number.isRequired,
