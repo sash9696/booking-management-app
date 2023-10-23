@@ -1,6 +1,9 @@
 // import GlobalStyles from "./styles/GlobalStyles"
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { QueryClient,QueryClientProvider } from "@tanstack/react-query";
+import {ReactQueryDevtools} from '@tanstack/react-query-devtools';
+
 import Dashboard from "./pages/Dashboard";
 import Bookings from "./pages/Bookings";
 import Cabins from "./pages/Cabins";
@@ -12,9 +15,31 @@ import PageNotFound from "./pages/PageNotFound";
 import GlobalStyles from "./styles/GlobalStyles";
 import AppLayout from "./ui/AppLayout";
 
+//setup a cache  using
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			//amount of time the data in the cache will stay fresh until refetched
+			staleTime: 60 * 1000,
+		},
+	},
+});
+
+//now we want to provide this query data to the entire application
+//using QueryClientProvider
+
+//next also install react query dev tools
+
+//npm i @tanstack/react-query@4
+
+//npm i @tanstack/react-devtools
+
+
 function App() {
 	return (
-		<>
+		<QueryClientProvider client={queryClient}>
+			<ReactQueryDevtools intitialIsOpen = {false}/>
+
 			<GlobalStyles />
 			<BrowserRouter>
 				<Routes>
@@ -34,7 +59,7 @@ function App() {
 					<Route path="*" element={<PageNotFound />} />
 				</Routes>
 			</BrowserRouter>
-		</>
+		</QueryClientProvider>
 	);
 }
 
