@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteCabin } from "../../services/apiCabins";
 import {toast} from 'react-hot-toast';
+import { useState } from "react";
+import CreateCabinForm from "./CreateCabinForm";
 
 const TableRow = styled.div`
   display: grid;
@@ -46,7 +48,7 @@ const Discount = styled.div`
 
 
 function CabinRow({cabin}) {
-
+  const [showForm, setShowForm] = useState(false);
   const {id:cabinId, name, maxCapacity, regularPrice, discount, image } = cabin;
  
  //hook to return the instance of query client that I put in main.jsx
@@ -65,16 +67,22 @@ function CabinRow({cabin}) {
     onError:(error) => toast.error(error.message)
   });
   return (
-
+    <>
     <TableRow role="row">
       <Img src={image}/>
       <Cabin>{name}</Cabin>
       <div>Fits up to {maxCapacity} guests </div>
       <Price>{formatCurrency(regularPrice)} </Price>
       <Discount>{formatCurrency(discount)} </Discount>
+      <div>
+      <button disabled={isDeleting} onClick={() => setShowForm(show => !show)} >Edit</button>
       <button disabled={isDeleting} onClick={() => mutate(cabinId)} >Delete</button>
 
+      </div>
+
     </TableRow>
+    {showForm && <CreateCabinForm cabinToEdit={cabin} /> }
+    </>
   )
 }
 
