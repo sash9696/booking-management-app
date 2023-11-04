@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { useState } from "react";
 import CreateCabinForm from "./CreateCabinForm";
 import { useDeleteCabin } from "./useDeleteCabin";
+import { HiPencil, HiSquare2Stack, HiTrash } from "react-icons/hi2";
+import { useCreateCabin } from "./useCreateCabin";
 
 const TableRow = styled.div`
   display: grid;
@@ -46,10 +48,18 @@ const Discount = styled.div`
 
 
 function CabinRow({cabin}) {
+  const {id:cabinId, name, maxCapacity, regularPrice, discount, image, description } = cabin;
+
   const [showForm, setShowForm] = useState(false);
   const {isDeleting, deleteCabin} =  useDeleteCabin();
+  const {isCreating, createCabin} = useCreateCabin();
 
-  const {id:cabinId, name, maxCapacity, regularPrice, discount, image } = cabin;
+  function handleDuplicate(){
+    createCabin({
+      name: `Copy of ${name}`,
+      maxCapacity, regularPrice, discount, image,description
+    })
+  }
  
  //hook to return the instance of query client that I put in main.jsx
  
@@ -69,8 +79,9 @@ function CabinRow({cabin}) {
         <span>&mdash;</span>
       ) }
       <div>
-      <button disabled={isDeleting} onClick={() => setShowForm(show => !show)} >Edit</button>
-      <button disabled={isDeleting} onClick={() => deleteCabin(cabinId)} >Delete</button>
+        <button disabled={isCreating} onClick={handleDuplicate} ><HiSquare2Stack/> </button>
+      <button disabled={isDeleting} onClick={() => setShowForm(show => !show)} ><HiPencil/> </button>
+      <button disabled={isDeleting} onClick={() => deleteCabin(cabinId)} ><HiTrash/> </button>
 
       </div>
 
@@ -88,6 +99,7 @@ CabinRow.propTypes = {
     regularPrice: PropTypes.number.isRequired,
     discount: PropTypes.number.isRequired,
     image: PropTypes.string.isRequired,
+    description:PropTypes.string.isRequired,
   }).isRequired,
 };
 
